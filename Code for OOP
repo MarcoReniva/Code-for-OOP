@@ -33,7 +33,18 @@ namespace ConsoleApp2
                     Console.Clear();
                     loadingscreen.loading();
                     Console.WriteLine("Hello");
-                 
+                    break;
+                case "2":
+                    Console.Clear();
+                    loadingscreen.loading();
+                    break;
+                case "3":
+                    Console.Clear();
+                    loadingscreen.loading();
+                    break;
+                case "4":
+                    Console.Clear();
+                    loadingscreen.loading();
                     break;
             }
             Console.ReadKey();
