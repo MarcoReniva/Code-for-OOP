@@ -31,15 +31,15 @@ namespace ConsoleApp2
                 case "1":
                     Console.Clear();
                     loadingscreen.loading();
-                    Console.WriteLine("Hello");
+                    login.log();
                     break;
                 case "2":
                     Console.Clear();
-                    loadingscreen.loading();
+                    loadingscreen.logout();
                     break;
                 case "3":
                     Console.Clear();
-                    loadingscreen.loading();
+                    loadingscreen.exit();
                     break;
             }
             Console.ReadKey();
@@ -67,6 +67,53 @@ namespace ConsoleApp2
 
             Console.CursorVisible = true;
             Console.WriteLine("\nDone!");
+        }
+        public static void logout()
+        {
+            for (int i = 0; i <= 100; i += 5)
+            {
+
+                int filled = i / 5;
+                Console.ForegroundColor = ConsoleColor.Red;
+                string bar = new string('█', filled) + new string('░', 20 - filled);
+
+                Console.Write($"\rLogging out: [{bar}] {i}%");
+                Console.ResetColor();
+
+                Thread.Sleep(150);
+            }
+
+            Console.CursorVisible = true;
+            Console.WriteLine("\nDone!");
+        }
+        public static void exit()
+        {
+            for (int i = 0; i <= 100; i += 5)
+            {
+                int filled = i / 5;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                string bar = new string('█', filled) + new string('░', 20 - filled);
+                Console.Write($"\rExiting: [{bar}] {i}%");
+                Console.ResetColor();
+                Thread.Sleep(150);
+            }
+            Console.CursorVisible = true;
+            Console.WriteLine("\nDone!");
+        }
+    }
+    class login
+    {
+
+        public static void log()
+        {
+
+        }   
+    }
+    class mainmenu
+    {
+        public static void menu ()
+        {
+            Console.WriteLine("======================================================");
         }
     }
     internal class Program
