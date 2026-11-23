@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConsoleApp2
@@ -20,10 +21,48 @@ namespace ConsoleApp2
 
 
             Console.WriteLine("======================================================");
-
+            Console.WriteLine("                   [1]Login");
+            Console.WriteLine("                   [2]Create Account");
+            Console.WriteLine("                   [3]Log out");
+            Console.WriteLine("                   [4]Exit");
+            Console.Write("Enter Choice: ");
+            string insert = Console.ReadLine();
+            switch(insert)
+            {
+                case "1":
+                    Console.Clear();
+                    loadingscreen.loading();
+                    Console.WriteLine("Hello");
+                 
+                    break;
+            }
             Console.ReadKey();
         }
      }
+
+    class loadingscreen
+    {
+        public static void loading()
+        {
+            Console.CursorVisible = false; 
+
+            for (int i = 0; i <= 100; i += 5)
+            {
+                
+                int filled = i / 5;
+                Console.ForegroundColor = ConsoleColor.Green;
+                string bar = new string('█', filled) + new string('░', 20 - filled);
+
+                Console.Write($"\rLoading: [{bar}] {i}%");
+                Console.ResetColor();
+
+                Thread.Sleep(150); 
+            }
+
+            Console.CursorVisible = true;
+            Console.WriteLine("\nDone!");
+        }
+    }
     internal class Program
     {
         static void Main(string[] args)
