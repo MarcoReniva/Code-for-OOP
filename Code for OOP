@@ -40,10 +40,12 @@ namespace ConsoleApp2
                 case "2":
                     Console.Clear();
                     loadingscreen.logout();
+                    login.log();
                     break;
                 case "3":
                     Console.Clear();
                     loadingscreen.exit();
+                    login.log();
                     break;
             }
             Console.ReadKey();
@@ -111,22 +113,185 @@ namespace ConsoleApp2
         public static void log()
         {
             Console.Write("Enter Username: ");
-            Console.WriteLine();
+            string usern = Console.ReadLine();
             Console.Write("Enter Password: ");
-        }   
-    }
-    class mainmenu
-    {
-        public static void menu ()
-        {
-            Console.WriteLine("======================================================");
+            string pass = Console.ReadLine();
+
+            if (usern == "" || pass == "")
+            {
+                Console.Clear();
+                Console.WriteLine("Username or Password cannot be empty.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+            string[] lines = File.ReadAllLines("Customer.txt");
+            string[] lines1 = File.ReadAllLines("Admin.txt");
+            string[] lines2 = File.ReadAllLines("Employee.txt");
+            bool userExists = lines.Any(line => line.Split(',')[0] == usern);
+            bool adminExists = lines1.Any(line => line.Split(',')[0] == usern);
+            bool employeeExists = lines2.Any(line => line.Split(',')[0] == usern);
+            if (!userExists && !adminExists && !employeeExists)
+            {
+                Console.Clear();
+                Console.WriteLine("Account does not exist.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+            if (usern == lines1[0].Split(',')[0])
+            {
+                Console.Clear();
+                Admin.admin();
+            }
+            else if (usern == lines2[0].Split(',')[0])
+            {
+                Console.Clear();
+                Employee.employee();
+            }
+            else if (usern == lines[0].Split(',')[0])
+            {
+               Console.Clear();
+                Customer.customer();
+            }
         }
-    }
-    internal class Program
-    {
-        static void Main(string[] args)
+        class Admin : Info
         {
-            format.form();
+            public static void admin()
+            {
+                // ── Centering helper ────────────────────────────────────────────
+                int uiWidth = 69;
+                int leftPad = Math.Max(0, (Console.WindowWidth - uiWidth) / 2);
+                string pad = new string(' ', leftPad);
+                //------------------------------------------------------------
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(pad + @"╔═════════════════════════════════════════════════════════════════════════╗");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"║     _    ___   __  __  ___  _  _       _     ___   ___  ___  ___  ___   ║");
+                Console.WriteLine(pad + @"║    /_\  |   \ |  \/  ||_ _|| \| |     /_\   / __| / __|| __|/ __|/ __|  ║");
+                Console.WriteLine(pad + @"║   / _ \ | |) || |\/| | | | | .` |    / _ \ | (__ | (__ | _| \__ \\__ \  ║");
+                Console.WriteLine(pad + @"║  /_/ \_\|___/ |_|  |_||___||_|\_|   /_/ \_\ \___| \___||___||___/|___/  ║");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"╠════════════════════╦════════════════════════════════════════════════════╣");
+                Console.WriteLine(pad + @"║       _____        ║                                                    ║");
+                Console.WriteLine(pad + @"║      /  _  \       ║          [ 1 ]  >  Create Account                  ║");
+                Console.WriteLine(pad + @"║     |  | |  |      ║          [ 2 ]  >  Remove Account                  ║");
+                Console.WriteLine(pad + @"║   .-+--+-+--+-.    ║          [ 3 ]  >  Search HouseID                  ║");
+                Console.WriteLine(pad + @"║   |           |    ║          [ 4 ]  >  Register HouseID                ║");
+                Console.WriteLine(pad + @"║   |     |     |    ║          [ 5 ]  >  View Pending Request            ║");
+                Console.WriteLine(pad + @"║   '-----------'    ║          [ 0 ]  >  Log Out                         ║");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"╚════════════════════╩════════════════════════════════════════════════════╝");
+                Console.WriteLine();
+                Console.Write(pad + "Enter your choice: ");
+                string choice = Console.ReadLine();
+
+            }
+
+            public static void createAccount()
+            {
+                bool again = false;
+                while (!again)
+                {
+                    Console.Write("Enter new username: ");
+                    string newusern = Console.ReadLine();
+                    Console.Write("Enter new password: ");
+                    string newpass = Console.ReadLine();
+                    Console.WriteLine();
+                    Console.Write("Confirm Password: ");
+                    string confpass = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(newusern) || string.IsNullOrEmpty(newpass) || string.IsNullOrEmpty(confpass))
+                    {
+                        Console.WriteLine("Username or Password cannot be empty.");
+                        again = false;
+                        return;
+                    }
+                    if (confpass != newpass)
+                    {
+                        WarningPopup("SECURITY ALERT", "Passwords do not match! Please try again.");
+                        continue;
+                    }
+
+                    // --- 3. VALIDATION: USER EXISTS ---
+                    if (File.Exists("login.txt") && File.ReadAllText("login.txt").Contains(newusern + ","))
+                    {
+                        WarningPopup("INVALID DATA", "Username already exists in the database.");
+                        continue;
+                    }
+                    else
+                    {
+                        string[] newaccount = { newusern + "," + confpass };
+                        File.AppendAllLines("login.txt", newaccount);
+                        Console.Clear();
+                    }
+
+
+                }
+            }
+        }
+        class Employee : Info
+        {
+            public static void employee()
+            {
+                int uiWidth = 69;
+                int leftPad = Math.Max(0, (Console.WindowWidth - uiWidth) / 2);
+                string pad = new string(' ', leftPad);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(pad + @"╔═════════════════════════════════════════════════════════════════════════╗");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"║              ___  __  __  ___  _      ___  __   __ ___  ___             ║");
+                Console.WriteLine(pad + @"║             | __||  \/  || _ \| |    / _ \ \ \ / /| __|| __|            ║");
+                Console.WriteLine(pad + @"║             | _| | |\/| ||  _/| |__ | (_) | \ V / | _| | _|             ║");
+                Console.WriteLine(pad + @"║             |___||_|  |_||_|  |____| \___/   |_|  |___||___|            ║");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"╠════════════════════╦════════════════════════════════════════════════════╣");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"║      .-----.       ║                                                    ║");
+                Console.WriteLine(pad + @"║     /       \      ║          [ 1 ]  >  Register Household              ║");
+                Console.WriteLine(pad + @"║    |  o   o  |     ║          [ 2 ]  >  Search HouseID                  ║");
+                Console.WriteLine(pad + @"║    |    <    |     ║          [ 3 ]  >  View Verification Requests      ║");
+                Console.WriteLine(pad + @"║    |  \___/  |     ║          [ 4 ]  >  View Requests                   ║");
+                Console.WriteLine(pad + @"║     \       /      ║          [ 0 ]  >  Logout                          ║");
+                Console.WriteLine(pad + @"║      '-----'       ║                                                    ║");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"╚════════════════════╩════════════════════════════════════════════════════╝");
+                Console.WriteLine();
+            }
+        }
+        class Customer : Info
+        {
+            public static void customer()
+            {
+                int uiWidth = 69;
+                int leftPad = Math.Max(0, (Console.WindowWidth - uiWidth) / 2);
+                string pad = new string(' ', leftPad);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(pad + @"╔═════════════════════════════════════════════════════════════════════════╗");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"║              ___  _   _  ___  _____   ___   __  __  ___  ___            ║");
+                Console.WriteLine(pad + @"║             / __|| | | |/ __||_   _| / _ \ |  \/  || __|| _ \           ║");
+                Console.WriteLine(pad + @"║            | (__ | |_| |\__ \  | |  | (_) || |\/| || _| |   /           ║");
+                Console.WriteLine(pad + @"║             \___| \___/ |___/  |_|   \___/ |_|  |_||___||_|_\           ║");
+                Console.WriteLine(pad + @"║                                                                         ║");
+                Console.WriteLine(pad + @"╠════════════════════╦════════════════════════════════════════════════════╣");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"║     .-------.      ║          [ 1 ]  >  View House Details              ║");
+                Console.WriteLine(pad + @"║   .'  .---.  '.    ║          [ 2 ]  >  Submit a Request                ║");
+                Console.WriteLine(pad + @"║  <   ( (O) )   >   ║          [ 0 ]  >  EXIT                            ║");
+                Console.WriteLine(pad + @"║   '.  '---'  .'    ║                                                    ║");
+                Console.WriteLine(pad + @"║     '-------'      ║                                                    ║");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"║                    ║                                                    ║");
+                Console.WriteLine(pad + @"╚════════════════════╩════════════════════════════════════════════════════╝");
+                Console.WriteLine();
+            }
+        }
+        internal class Program
+        {
+            static void Main(string[] args)
+            {
+                format.form();
+            }
         }
     }
 }
