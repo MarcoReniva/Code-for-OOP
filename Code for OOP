@@ -4,14 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ConsoleApp2
 {
 
     class Info
     {
-
+        static public string currentuser;
+        static protected string credentials;
+        static protected string info;
     }
+
     class format
     {
         public static void form()
@@ -106,7 +110,9 @@ namespace ConsoleApp2
 
         public static void log()
         {
-
+            Console.Write("Enter Username: ");
+            Console.WriteLine();
+            Console.Write("Enter Password: ");
         }   
     }
     class mainmenu
