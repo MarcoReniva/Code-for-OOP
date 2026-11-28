@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
+using Microsoft.SqlServer.Server;
 
 namespace ConsoleApp2
 {
@@ -13,7 +14,7 @@ namespace ConsoleApp2
     {
         static public string currentuser;
         static protected string credentials;
-        static protected string info;
+        static protected string lines;
     }
 
     class format
@@ -107,7 +108,19 @@ namespace ConsoleApp2
             Console.WriteLine("\nDone!");
         }
     }
-    class login
+    class accountdata
+    {
+        protected static string[] lines;
+        protected static string[] lines1;
+        protected static string[] lines2;
+        public static void load()
+        {
+            lines = File.ReadAllLines("Customer.txt");
+            lines1 = File.ReadAllLines("Admin.txt");
+            lines2 = File.ReadAllLines("Employee.txt");
+        }
+    }
+    class login : accountdata
     {
 
         public static void log()
@@ -123,37 +136,87 @@ namespace ConsoleApp2
                 Console.WriteLine("Username or Password cannot be empty.");
                 Console.ReadKey();
                 Console.Clear();
+                return;
             }
-            string[] lines = File.ReadAllLines("Customer.txt");
-            string[] lines1 = File.ReadAllLines("Admin.txt");
-            string[] lines2 = File.ReadAllLines("Employee.txt");
-            bool userExists = lines.Any(line => line.Split(',')[0] == usern);
-            bool adminExists = lines1.Any(line => line.Split(',')[0] == usern);
-            bool employeeExists = lines2.Any(line => line.Split(',')[0] == usern);
-            if (!userExists && !adminExists && !employeeExists)
+
+            accountdata.load();
+            string userRole = "";
+
+            foreach (string line in lines1)
             {
-                Console.Clear();
-                Console.WriteLine("Account does not exist.");
-                Console.ReadKey();
-                Console.Clear();
+                if (line == "")
+                    continue;
+
+                string[] parts = line.Split(',');
+
+                if (parts.Length >= 2 && parts[0] == usern && parts[1] == pass)
+                {
+                    userRole = "admin";
+                    break;
+                }
             }
-            if (usern == lines1[0].Split(',')[0])
+
+            if (userRole == "")
             {
+                foreach (string line in lines2)
+                {
+                    if (line == "")
+                        continue;
+
+                    string[] parts = line.Split(',');
+
+                    if (parts.Length >= 2 && parts[0] == usern && parts[1] == pass)
+                    {
+                        userRole = "employee";
+                        break;
+                    }
+                }
+            }
+
+            if (userRole == "")
+            {
+                foreach (string line in lines)
+                {
+                    if (line == "")
+                        continue;
+
+                    string[] parts = line.Split(',');
+
+                    if (parts.Length >= 2 && parts[0] == usern && parts[1] == pass)
+                    {
+                        userRole = "customer";
+                        break;
+                    }
+                }
+            }
+
+            if (userRole == "admin")
+            {
+                Info.currentuser = usern;
                 Console.Clear();
                 Admin.admin();
             }
-            else if (usern == lines2[0].Split(',')[0])
+            else if (userRole == "employee")
             {
+                Info.currentuser = usern;
                 Console.Clear();
                 Employee.employee();
             }
-            else if (usern == lines[0].Split(',')[0])
+            else if (userRole == "customer")
             {
-               Console.Clear();
+                Info.currentuser = usern;
+                Console.Clear();
                 Customer.customer();
             }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid username or password.");
+                Console.ReadKey();
+                Console.Clear();
+            }
         }
-        class Admin : Info
+        class Admin : accountdata
         {
             public static void admin()
             {
@@ -183,23 +246,109 @@ namespace ConsoleApp2
                 Console.WriteLine();
                 Console.Write(pad + "Enter your choice: ");
                 string choice = Console.ReadLine();
-
+                if (choice == "1")
+                {
+                    Console.Clear();
+                    createAccount();
+                }
+                else if (choice == "2")
+                {
+                    Console.Clear();
+                    //removeAccount();
+                }
+                else if (choice == "3")
+                {
+                    Console.Clear();
+                   // searchHouseID();
+                }
+                else if (choice == "4")
+                {
+                    Console.Clear();
+                    //registerHouseID();
+                }
+                else if (choice == "5")
+                {
+                    Console.Clear();
+                    //viewPendingRequest();
+                }
+                else if (choice == "0")
+                {
+                    Console.Clear();
+                    loadingscreen.logout();
+                    login.log();
+                }
             }
+            static string CreateId(string countFile, string letter)
+            {
+                int number = 0;
 
+                if (File.Exists(countFile))
+                {
+                    string text = File.ReadAllText(countFile);
+
+                    if (text != "")
+                    {
+                        number = Convert.ToInt32(text);
+                    }
+                }
+                number = number + 1;
+                File.WriteAllText(countFile, number + "");
+
+                string zeros = "";
+
+                if (number < 10)
+                    zeros = "000";
+                else if (number < 100)
+                    zeros = "00";
+                else if (number < 1000)
+                    zeros = "0";
+
+                return letter + zeros + number;
+            }
             public static void createAccount()
             {
                 bool again = false;
                 while (!again)
                 {
-                    Console.Write("Enter new username: ");
-                    string newusern = Console.ReadLine();
+                    Console.WriteLine("Choose a role");
+                    Console.WriteLine("[1] Admin");
+                    Console.WriteLine("[2] Employee");
+                    Console.WriteLine("[3] Customer");
+                    Console.Write("Enter your choice: ");
+                    string roleChoice = Console.ReadLine();
+                    string usern = "";
+                    string datafile = "";
+                    if(roleChoice == "1")
+                    {
+                        usern = CreateId("AdminCount.txt", "A");
+                        datafile = "Admin.txt";
+                        again = true;
+                    }
+                    else if (roleChoice == "2")
+                    {
+                        usern = CreateId("EmployeeCount.txt", "E");
+                        datafile = "Employee.txt";
+                        again = true;
+                    }
+                    else if (roleChoice == "3")
+                    {
+                        usern = CreateId("CustomerCount.txt", "C");
+                        datafile = "Customer.txt";
+                        again = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        again = false;
+                        continue;
+                    }
                     Console.Write("Enter new password: ");
                     string newpass = Console.ReadLine();
                     Console.WriteLine();
                     Console.Write("Confirm Password: ");
                     string confpass = Console.ReadLine();
 
-                    if (string.IsNullOrEmpty(newusern) || string.IsNullOrEmpty(newpass) || string.IsNullOrEmpty(confpass))
+                    if ( string.IsNullOrEmpty(newpass) || string.IsNullOrEmpty(confpass))
                     {
                         Console.WriteLine("Username or Password cannot be empty.");
                         again = false;
@@ -207,23 +356,16 @@ namespace ConsoleApp2
                     }
                     if (confpass != newpass)
                     {
-                        WarningPopup("SECURITY ALERT", "Passwords do not match! Please try again.");
-                        continue;
-                    }
-
-                    // --- 3. VALIDATION: USER EXISTS ---
-                    if (File.Exists("login.txt") && File.ReadAllText("login.txt").Contains(newusern + ","))
-                    {
-                        WarningPopup("INVALID DATA", "Username already exists in the database.");
+                        Console.WriteLine("SECURITY ALERT: Passwords do not match! Please try again.");
                         continue;
                     }
                     else
                     {
-                        string[] newaccount = { newusern + "," + confpass };
-                        File.AppendAllLines("login.txt", newaccount);
-                        Console.Clear();
+                        File.AppendAllText(datafile, usern + "," + newpass + Environment.NewLine);
+                        //File.AppendAllLines(datafile, new string[] { usern + "," + newpass });
+                        Console.WriteLine("Account created successfully! Your username is: " + usern);
                     }
-
+                    
 
                 }
             }
